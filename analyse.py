@@ -1,18 +1,23 @@
-from utils import Json, Maths, CsvToObject, SearchObject
+from generic import Json
+from maths import Maths
+from objects import CsvToObject, SearchObject
 
-class Data:
-    def __init__(self, country, gender, mean):
-        self.country = country
-        self.gender = gender
-        self.mean = mean
+csvObject = CsvToObject('data/happiness.csv').setCsv().convert()
+searchObject = SearchObject()
 
-x = CsvToObject('happiness.csv')
-x.setCsv()
-data = x.convert()
-
-z = SearchObject()
-data = z.retrieveValuesByKey('Both', data)
+cGenderHappiness = [Maths.float(x) for x in searchObject.retrieveValuesByKey('Both', csvObject)]
+mGenderHappiness = [Maths.float(x) for x in searchObject.retrieveValuesByKey('Male', csvObject)]
+fGenderHappiness = [Maths.float(x) for x in searchObject.retrieveValuesByKey('Female', csvObject)]
 
 Json.save({
-    'meanBoth': Maths.sigfig(Maths.mean(data))
+    'global': {
+        'means': {
+            'both': Maths.mean(cGenderHappiness),
+            'female': Maths.mean(fGenderHappiness),
+            'male': Maths.mean(mGenderHappiness)
+        },
+        'both': cGenderHappiness,
+        'female': fGenderHappiness,
+        'male': mGenderHappiness
+    }
 }, 'test.json')
