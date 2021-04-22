@@ -1,4 +1,4 @@
-from utils import Json
+from utils import Json, Maths, CsvToObject, SearchObject
 
 class Data:
     def __init__(self, country, gender, mean):
@@ -6,31 +6,13 @@ class Data:
         self.gender = gender
         self.mean = mean
 
-DataList = []
-lastCountry = ""
-import csv
-with open('happiness.csv', 'r') as file:
-    reader = csv.reader(file)
-    next(reader, None)
-    for row in reader:
+x = CsvToObject('happiness.csv')
+x.setCsv()
+data = x.convert()
 
-        if not row[0]:
-            country = lastCountry
-        else:
-            country = row[0]
+z = SearchObject()
+data = z.retrieveValuesByKey('Both', data)
 
-        lastCountry = country
-        DataList.append(Data(country, row[1], row[2]))
-
-countryMeans = {}
-
-for item in DataList:
-    if not countryMeans.get(item.country):
-        countryMeans[item.country] = {}
-
-    countryMeans[item.country][item.gender] = item.mean
-
-
-x = Json(countryMeans, 'results.json')
-x.save()
-
+Json.save({
+    'meanBoth': Maths.sigfig(Maths.mean(data))
+}, 'test.json')
